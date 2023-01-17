@@ -153,7 +153,7 @@ public class ConnectPlugin extends JavaPlugin {
             final Object minecraftServer =
                     super.getServer().getClass().getMethod("getServer").invoke(super.getServer());
             final Object serverConnection =
-                    minecraftServer.getClass().getMethod("getServerConnection").invoke(minecraftServer);
+                    minecraftServer.getClass().getMethod("ac").invoke(minecraftServer);
             return Arrays.stream(serverConnection.getClass().getDeclaredFields())
                     .filter(field -> field.getType().equals(List.class))
                     .peek(field -> field.setAccessible(true))
