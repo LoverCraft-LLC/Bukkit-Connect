@@ -58,7 +58,6 @@ public class ConnectPlugin extends JavaPlugin {
 
             super.getServer().spigot().getBukkitConfig().set("settings.connection-throttle", -1);
 
-            commonPort = getCommonPort();
             connectSettings = new ConnectSettingsImpl(super.getConfig());
             connect = new ConnectImpl(connectSettings, getInboundAddress().getAddress().getHostAddress());
             executorService = Executors.newSingleThreadScheduledExecutor(
@@ -69,8 +68,9 @@ public class ConnectPlugin extends JavaPlugin {
 
             executorService.scheduleAtFixedRate(this::ensureConnected, 0L, 1L, TimeUnit.SECONDS);
 
-            super.getServer().getPluginManager().registerEvents(new PlayerHandshakeListener(this), this);
-            super.getServer().getServicesManager().register(Connect.class, connect, this, ServicePriority.Normal);
+            if (!getServer().spigot().getPaperConfig().getBoolean("proxies.velocity.enabled", false)) {
+                super.getServer().getServicesManager().register(Connect.class, connect, this, ServicePriority.Normal);
+            }
         } catch (Throwable throwable) {
             log.error("Failed to initialize plugin. For your security, the server will now shut down.", throwable);
             Bukkit.shutdown();
@@ -183,6 +183,9 @@ public class ConnectPlugin extends JavaPlugin {
         }
         int port = super.getServer().getPort();
         if (port == 0) {
+            if (this.commonPort == 0) {
+                this.commonPort = getCommonPort();
+            }
             port = this.commonPort;
         }
         return new InetSocketAddress(ip, port);
