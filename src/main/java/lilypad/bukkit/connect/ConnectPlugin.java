@@ -66,11 +66,12 @@ public class ConnectPlugin extends JavaPlugin {
                             .setDaemon(true)
                             .build());
 
-            executorService.scheduleAtFixedRate(this::ensureConnected, 0L, 1L, TimeUnit.SECONDS);
-
             if (!getServer().spigot().getPaperConfig().getBoolean("proxies.velocity.enabled", false)) {
-                super.getServer().getServicesManager().register(Connect.class, connect, this, ServicePriority.Normal);
+                executorService.scheduleAtFixedRate(this::ensureConnected, 0L, 1L, TimeUnit.SECONDS);
+                super.getServer().getPluginManager().registerEvents(new PlayerHandshakeListener(this), this);
             }
+            super.getServer().getServicesManager().register(Connect.class, connect, this, ServicePriority.Normal);
+            log.info("Service registered.");
         } catch (Throwable throwable) {
             log.error("Failed to initialize plugin. For your security, the server will now shut down.", throwable);
             Bukkit.shutdown();
